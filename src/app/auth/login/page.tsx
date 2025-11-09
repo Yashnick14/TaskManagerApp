@@ -64,22 +64,6 @@ export default function LoginPage() {
                 className="w-full text-slate-900 text-sm border-b border-slate-300 focus:border-blue-600 px-2 py-3 pr-8 outline-none"
                 placeholder="Enter email"
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="#bbb"
-                stroke="#bbb"
-                className="w-[18px] h-[18px] absolute right-2"
-                viewBox="0 0 682.667 682.667"
-              >
-                <g transform="matrix(1.33 0 0 -1.33 0 682.667)">
-                  <path
-                    fill="none"
-                    strokeMiterlimit="10"
-                    strokeWidth="40"
-                    d="M452 444H60c-22.091 0-40-17.909-40-40v-39.446l212.127-157.782c14.17-10.54 33.576-10.54 47.746 0L492 364.554V404c0 22.091-17.909 40-40 40Z"
-                  />
-                </g>
-              </svg>
             </div>
 
             {/* Password */}
@@ -93,15 +77,6 @@ export default function LoginPage() {
                 className="w-full text-slate-900 text-sm border-b border-slate-300 focus:border-blue-600 px-2 py-3 pr-8 outline-none"
                 placeholder="Enter password"
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="#bbb"
-                stroke="#bbb"
-                className="w-[18px] h-[18px] absolute right-2 cursor-pointer"
-                viewBox="0 0 128 128"
-              >
-                <path d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104z" />
-              </svg>
             </div>
           </div>
 
