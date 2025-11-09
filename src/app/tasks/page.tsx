@@ -52,7 +52,7 @@ export default function TasksDashboard() {
   const handleToggleComplete = async (task: Task): Promise<Task> => {
     const updated = await toggleTask(task.id, !task.is_completed);
     setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
-    return updated; // ✅ Return updated Task so TaskCard can use it
+    return updated;
   };
 
   const handleTaskDeleted = async (taskId: string) => {
@@ -135,7 +135,7 @@ export default function TasksDashboard() {
               className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-all flex items-center gap-2 font-medium shadow-lg shadow-indigo-200"
             >
               <PlusCircle size={20} />
-              Add New Task
+              Add Task
             </button>
           </div>
 

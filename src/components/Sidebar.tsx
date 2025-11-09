@@ -13,8 +13,16 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-linear-to-b from-gray-950 to-gray-800 text-white shadow-2xl z-40">
-      <div className="flex flex-col h-full pt-20">
+    <div className="fixed left-0 top-0 h-screen w-64 bg-linear-to-b from-gray-950 to-gray-800 text-white shadow-2xl z-50">
+      <div className="flex flex-col h-full pt-6">
+        {/* App Title */}
+        <div className="px-4 mb-8">
+          <h1 className="text-2xl font-bold">Task Manager Pro</h1>
+          <p className="text-indigo-100 text-sm mt-1">
+            Organize your work efficiently
+          </p>
+        </div>
+
         {/* Navigation Links */}
         <nav className="flex-1 px-4 py-6 space-y-2">
           <a
