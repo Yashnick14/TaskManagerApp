@@ -13,13 +13,19 @@ export async function getTasks(userId: string): Promise<Task[]> {
 }
 
 export async function createTask(userId: string, title: string): Promise<Task> {
+  if (!title || title.trim() === "") {
+    throw new Error("Task title cannot be empty");
+  }
+
   const { data, error } = await supabase
     .from("tasks")
-    .insert({ user_id: userId, title })
+    .insert({ user_id: userId, title: title.trim() })
     .select()
     .single();
 
   if (error) throw error;
+  if (!data) throw new Error("No task returned");
+
   return data;
 }
 
@@ -28,14 +34,17 @@ export async function deleteTask(taskId: string) {
   if (error) throw error;
 }
 
-export async function toggleTask(taskId: string, isCompleted: boolean) {
+export const toggleTask = async (taskId: string, newStatus: boolean): Promise<Task> => {
   const { data, error } = await supabase
     .from("tasks")
-    .update({ is_completed: isCompleted })
+    .update({ is_completed: newStatus }) // same as your working test
     .eq("id", taskId)
     .select()
     .single();
 
   if (error) throw error;
+  if (!data) throw new Error("No task found");
+
   return data;
-}
+};
+

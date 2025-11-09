@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTasks, createTask, deleteTask, toggleTask } from "../../../backend/controllers/taskContoller";
+import { createClient } from "@supabase/supabase-js";
+import { getTasks, createTask, deleteTask } from "../../../backend/controllers/taskContoller";
+
+// Use service role key for server-side operations (bypasses RLS)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; // Add this to your .env
+
+// Create admin client for API routes
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 interface CreateTaskBody {
   title: string;
@@ -37,10 +50,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const taskId = searchParams.get("id");
-  if (!taskId) return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
+  const body: unknown = await req.json();
+  if (!body || typeof body !== "object" || !("id" in body)) {
+    return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
+  }
 
+  const taskId = (body as { id: string }).id;
   try {
     await deleteTask(taskId);
     return NextResponse.json({ message: "Deleted" });
@@ -50,20 +65,60 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const taskId = searchParams.get("id");
-  const isCompletedParam = searchParams.get("is_completed");
+  const body = await req.json();
+  const { id: taskId, is_completed } = body;
 
-  if (!taskId || isCompletedParam === null) {
+  console.log("🔵 PATCH request received:", taskId, is_completed);
+
+  if (!taskId || typeof is_completed !== "boolean") {
     return NextResponse.json({ error: "Task ID and status are required" }, { status: 400 });
   }
 
-  const isCompleted = isCompletedParam === "true";
-
   try {
-    const task = await toggleTask(taskId, isCompleted);
-    return NextResponse.json(task);
+    // Use the admin client directly for the update to bypass any RLS issues
+    console.log("🔵 Updating with admin client...");
+    
+    const { data, error } = await supabaseAdmin
+      .from("tasks")
+      .update({ is_completed })
+      .eq("id", taskId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Admin update error:", error);
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error("No task returned after update");
+    }
+
+    console.log("✅ Admin update successful:", data);
+
+    // Verify the update
+    const { data: verifyData, error: verifyError } = await supabaseAdmin
+      .from("tasks")
+      .select("*")
+      .eq("id", taskId)
+      .single();
+
+    console.log("🔍 Verification:", verifyData);
+
+    if (verifyError) {
+      console.error("⚠️ Verification error:", verifyError);
+    } else if (verifyData && verifyData.is_completed !== is_completed) {
+      console.error("❗ MISMATCH: Expected", is_completed, "but got", verifyData.is_completed);
+    }
+
+    return NextResponse.json(data);
   } catch (err: unknown) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    if (err instanceof Error) {
+      console.error("❌ PATCH error:", err.message);
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    } else {
+      console.error("❌ PATCH error:", err);
+      return NextResponse.json({ error: String(err) }, { status: 500 });
+    }
   }
 }
